@@ -1,7 +1,8 @@
-from .llm import nodes as llm_nodes
+from .llm import nodes as llm_nodes, routes
 from .nai import nodes
 
 NODE_CLASS_MAPPINGS = {**nodes.NODE_CLASS_MAPPINGS, **llm_nodes.NODE_CLASS_MAPPINGS}
 NODE_DISPLAY_NAME_MAPPINGS = {**nodes.NODE_DISPLAY_NAME_MAPPINGS, **llm_nodes.NODE_DISPLAY_NAME_MAPPINGS}
+WEB_DIRECTORY = "./web"
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

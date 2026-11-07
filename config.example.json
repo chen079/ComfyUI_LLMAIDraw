@@ -12,6 +12,6 @@
     "official": { "base_url": "https://api.x.ai/v1", "api_key": "" }
   },
   "chatgpt_account": {
-    "model": "gpt-5"
+    "model": "gpt-6.1-sol"
   }
 }

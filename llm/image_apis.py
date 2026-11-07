@@ -11,6 +11,28 @@ def _post(url, api_key, service, timeout, **kwargs):
     return response.json()
 
 
+def _get(url, api_key, service, timeout, **kwargs):
+    response = requests.get(url, timeout=timeout, **kwargs)
+    raise_for_status(response, api_key, service)
+    return response.json()
+
+
+def _image_models(names):
+    # Fall back to every model when a proxy uses names that do not mention images.
+    return sorted(name for name in names if "image" in name.lower()) or sorted(names)
+
+
+def openai_list_models(base_url, api_key, timeout):
+    data = _get(f"{base_url}/models", api_key, "OpenAI", timeout, headers={"Authorization": f"Bearer {api_key}"})
+    return _image_models([model["id"] for model in data.get("data", [])])
+
+
+def gemini_list_models(base_url, api_key, timeout):
+    data = _get(f"{base_url}/models", api_key, "Gemini", timeout, headers={"x-goog-api-key": api_key}, params={"pageSize": 1000})
+    names = [model["name"].removeprefix("models/") for model in data.get("models", []) if "generateContent" in model.get("supportedGenerationMethods", ["generateContent"])]
+    return _image_models(names)
+
+
 def _decode_b64_items(data, service):
     images = [base64.b64decode(item["b64_json"]) for item in data.get("data", []) if item.get("b64_json")]
     if not images:

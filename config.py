@@ -11,14 +11,31 @@ def load_config():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _write(config):
+    CONFIG_FILE.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def save_section(name, values):
     config = load_config()
     config.setdefault(name, {}).update(values)
-    CONFIG_FILE.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write(config)
+
+
+def save_profile_models(section, name, models):
+    config = load_config()
+    config[section][name]["models"] = models
+    _write(config)
 
 
 def profile_names(section):
     return list(load_config().get(section, {})) or ["official"]
+
+
+def model_names(section, default):
+    names = [default]
+    for profile in load_config().get(section, {}).values():
+        names += [model for model in profile.get("models", []) if model not in names]
+    return names
 
 
 def get_profile(section, name):

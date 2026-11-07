@@ -43,7 +43,7 @@ notepad config.json
   "grok_image": {
     "official": { "base_url": "https://api.x.ai/v1", "api_key": "xai-..." }
   },
-  "chatgpt_account": { "model": "gpt-5" }
+  "chatgpt_account": { "model": "gpt-6.1-sol" }
 }
 ```
 
@@ -67,7 +67,19 @@ notepad config.json
 - `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`、`seed`，可选参考图 `image`。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
 
-`model` 是文本框，新模型发布后（例如 GPT Image 2.6）直接填写新的模型 ID 即可。
+## 获取模型列表
+
+三个 LLMAIDraw 节点都有 **获取模型列表 / Refresh models** 按钮：先选好 `profile`，点击后会请求该配置的 `/models` 接口，把模型写入 `config.json` 中该配置的 `models` 字段，并刷新 `model` 下拉框。名称含 `image` 的模型优先列出；中转站的模型名都不含 `image` 时列出全部模型。
+
+不支持 `/models` 的中转站可以手动填写列表：
+
+```json
+"gpt_image": {
+  "my-proxy": { "base_url": "https://your-proxy.example/v1", "api_key": "sk-...", "models": ["gpt-image-2.5-sunburst"] }
+}
+```
+
+`chatgpt_account` 不使用 `model` 下拉框，而是使用 `config.json` 中的 `chatgpt_account.model`（默认 `gpt-6.1-sol`）。
 
 `seed` 在 GPT Image 和 Grok Image 中只用于让 ComfyUI 重新运行相同请求。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
 
@@ -145,6 +157,7 @@ ComfyUI_LLMAIDraw/
 ├── image_codec.py       # ComfyUI 图像与 PNG / 遮罩互转
 ├── nai/                 # NovelAI：请求、生成参数、提示词语法、节点
 ├── llm/                 # GPT Image / Nano Banana 2 / Grok Image 及 ChatGPT 账号登录
+├── web/                 # 前端扩展：获取模型列表按钮
 ├── locales/             # 中英文界面翻译
 ├── workflows/           # 示例工作流
 ├── docs/images/         # 文档截图

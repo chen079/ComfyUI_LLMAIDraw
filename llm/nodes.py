@@ -1,11 +1,12 @@
 from . import chatgpt_account
-from ..config import get_profile, profile_names
-from .image_apis import gemini_generate, openai_generate, xai_generate
+from ..config import get_profile, model_names, profile_names
+from .image_apis import gemini_generate, gemini_list_models, openai_generate, openai_list_models, xai_generate
 from ..image_codec import edit_mask_to_png, image_to_png, images_to_batch
 
 
 CATEGORY = "LLMAIDraw"
 ACCOUNT_PROFILE = "chatgpt_account"
+MODEL_TOOLTIP = "Use the refresh models button to load the models of the selected profile into this list."
 SEED_TOOLTIP = "Change to run the same request again; ComfyUI reuses cached results for identical inputs."
 GEMINI_ASPECT_RATIOS = ["auto", "1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"]
 GPT_SIZES = ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "1152x2048", "3840x2160", "2160x3840"]
@@ -21,13 +22,17 @@ def _references(image):
 
 
 class LLMAIDrawGPTImage:
+    CONFIG_SECTION = "gpt_image"
+    DEFAULT_MODEL = "gpt-image-2.5-sunburst"
+    list_models = staticmethod(openai_list_models)
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "profile": (profile_names("gpt_image") + [ACCOUNT_PROFILE], {"tooltip": f"Profiles come from the gpt_image section of config.json; {ACCOUNT_PROFILE} signs in with a ChatGPT account."}),
+                "profile": (profile_names(cls.CONFIG_SECTION) + [ACCOUNT_PROFILE], {"tooltip": f"Profiles come from the gpt_image section of config.json; {ACCOUNT_PROFILE} signs in with a ChatGPT account."}),
                 "prompt": _prompt(),
-                "model": ("STRING", {"default": "gpt-image-2.5-sunburst", "tooltip": f"Image model for API profiles, e.g. gpt-image-2.5-sunburst or gpt-image-2.5-flare. {ACCOUNT_PROFILE} uses the image tool of the ChatGPT account."}),
+                "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": f"Image model for API profiles. {ACCOUNT_PROFILE} uses chatgpt_account.model from config.json instead. {MODEL_TOOLTIP}"}),
                 "size": (GPT_SIZES, {"default": "auto", "tooltip": "Sizes above 2560x1440 are experimental and need a GPT Image 2 or newer model."}),
                 "quality": (["auto", "low", "medium", "high", "xhigh", "max"], {"default": "auto", "tooltip": "xhigh and max need GPT Image 2.5 or newer."}),
                 "background": (["auto", "transparent", "opaque"], {"default": "auto"}),
@@ -57,19 +62,23 @@ class LLMAIDrawGPTImage:
         if profile == ACCOUNT_PROFILE:
             results = [chatgpt_account.generate(prompt, options, references, mask_png, force_login and index == 0, timeout_sec) for index in range(n)]
         else:
-            base_url, api_key = get_profile("gpt_image", profile)
+            base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
             results = openai_generate(base_url, api_key, prompt, {"model": model, "n": n, **options}, references, mask_png, timeout_sec)
         return (images_to_batch(results, background == "transparent"),)
 
 
 class LLMAIDrawNanoBanana2:
+    CONFIG_SECTION = "nano_banana"
+    DEFAULT_MODEL = "gemini-3.1-flash-image"
+    list_models = staticmethod(gemini_list_models)
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "profile": (profile_names("nano_banana"), {"tooltip": "Profiles come from the nano_banana section of config.json."}),
+                "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the nano_banana section of config.json."}),
                 "prompt": _prompt(),
-                "model": ("STRING", {"default": "gemini-3.1-flash-image"}),
+                "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": MODEL_TOOLTIP}),
                 "aspect_ratio": (GEMINI_ASPECT_RATIOS, {"default": "auto"}),
                 "image_size": (["auto", "1K", "2K", "4K"], {"default": "auto"}),
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
@@ -84,7 +93,7 @@ class LLMAIDrawNanoBanana2:
     CATEGORY = CATEGORY
 
     def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, seed, timeout_sec, image=None):
-        base_url, api_key = get_profile("nano_banana", profile)
+        base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         image_config = {}
         if aspect_ratio != "auto":
             image_config["aspectRatio"] = aspect_ratio
@@ -98,12 +107,16 @@ class LLMAIDrawNanoBanana2:
 
 
 class LLMAIDrawGrokImage:
+    CONFIG_SECTION = "grok_image"
+    DEFAULT_MODEL = "grok-imagine-image-2.0"
+    list_models = staticmethod(openai_list_models)
+
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "profile": (profile_names("grok_image"), {"tooltip": "Profiles come from the grok_image section of config.json."}),
+            "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the grok_image section of config.json."}),
             "prompt": _prompt(),
-            "model": ("STRING", {"default": "grok-imagine-image-2.0"}),
+            "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": MODEL_TOOLTIP}),
             "aspect_ratio": (GROK_ASPECT_RATIOS, {"default": "auto", "tooltip": "auto leaves the aspect ratio to the server default."}),
             "resolution": (["1k", "2k"], {"default": "1k"}),
             "quality": (["low", "medium"], {"default": "medium", "tooltip": "Supported by grok-imagine-image-2.0."}),
@@ -117,7 +130,7 @@ class LLMAIDrawGrokImage:
     CATEGORY = CATEGORY
 
     def generate(self, profile, prompt, model, aspect_ratio, resolution, quality, n, seed, timeout_sec):
-        base_url, api_key = get_profile("grok_image", profile)
+        base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         params = {"model": model, "resolution": resolution, "quality": quality, "n": n}
         if aspect_ratio != "auto":
             params["aspect_ratio"] = aspect_ratio

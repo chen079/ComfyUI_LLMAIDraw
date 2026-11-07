@@ -120,7 +120,7 @@ def generate(prompt, tool, images, mask_png, force_login, timeout):
     if mask_png is not None:
         tool = {**tool, "input_image_mask": {"image_url": _data_url(mask_png)}}
     body = {
-        "model": account.get("model", "gpt-5"),
+        "model": account.get("model", "gpt-6.1-sol"),
         "instructions": "Generate the requested image with the image_generation tool.",
         "input": [{"type": "message", "role": "user", "content": content}],
         "tools": [{"type": "image_generation", **tool}],

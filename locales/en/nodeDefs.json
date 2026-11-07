@@ -145,7 +145,7 @@
     "inputs": {
       "profile": { "name": "Profile", "tooltip": "Profiles come from the gpt_image section of config.json; chatgpt_account signs in with a ChatGPT account." },
       "prompt": { "name": "Prompt" },
-      "model": { "name": "Model", "tooltip": "Image model for API profiles, e.g. gpt-image-2.5-sunburst or gpt-image-2.5-flare. chatgpt_account uses the image tool of the ChatGPT account." },
+      "model": { "name": "Model", "tooltip": "Image model for API profiles. chatgpt_account uses chatgpt_account.model from config.json instead. Use the refresh models button to load the models of the selected profile into this list." },
       "size": { "name": "Size", "tooltip": "Sizes above 2560x1440 are experimental and need a GPT Image 2 or newer model." },
       "quality": { "name": "Quality", "tooltip": "xhigh and max need GPT Image 2.5 or newer." },
       "background": { "name": "Background" },
@@ -167,7 +167,7 @@
     "inputs": {
       "profile": { "name": "Profile", "tooltip": "Profiles come from the nano_banana section of config.json." },
       "prompt": { "name": "Prompt" },
-      "model": { "name": "Model" },
+      "model": { "name": "Model", "tooltip": "Use the refresh models button to load the models of the selected profile into this list." },
       "aspect_ratio": { "name": "Aspect ratio" },
       "image_size": { "name": "Image size" },
       "temperature": { "name": "Temperature" },
@@ -183,7 +183,7 @@
     "inputs": {
       "profile": { "name": "Profile", "tooltip": "Profiles come from the grok_image section of config.json." },
       "prompt": { "name": "Prompt" },
-      "model": { "name": "Model" },
+      "model": { "name": "Model", "tooltip": "Use the refresh models button to load the models of the selected profile into this list." },
       "aspect_ratio": { "name": "Aspect ratio", "tooltip": "auto leaves the aspect ratio to the server default." },
       "resolution": { "name": "Resolution" },
       "quality": { "name": "Quality", "tooltip": "Supported by grok-imagine-image-2.0." },

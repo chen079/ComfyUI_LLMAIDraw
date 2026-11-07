@@ -22,7 +22,12 @@ comfy = types.ModuleType("comfy")
 comfy.utils = types.ModuleType("comfy.utils")
 comfy.utils.common_upscale = lambda samples, width, height, method, crop: torch.nn.functional.interpolate(samples, size=(height, width), mode=method, align_corners=False)
 
-with patch.dict(sys.modules, {"llmaidraw_test": package, "comfy": comfy, "comfy.utils": comfy.utils}):
+server = types.ModuleType("server")
+server.PromptServer = types.SimpleNamespace(instance=types.SimpleNamespace(routes=types.SimpleNamespace(post=lambda path: lambda handler: handler)))
+aiohttp = types.ModuleType("aiohttp")
+aiohttp.web = types.ModuleType("aiohttp.web")
+
+with patch.dict(sys.modules, {"llmaidraw_test": package, "comfy": comfy, "comfy.utils": comfy.utils, "server": server, "aiohttp": aiohttp, "aiohttp.web": aiohttp.web}):
     config = importlib.import_module("llmaidraw_test.config")
     image_codec = importlib.import_module("llmaidraw_test.image_codec")
     nai_client = importlib.import_module("llmaidraw_test.nai.client")
@@ -31,6 +36,8 @@ with patch.dict(sys.modules, {"llmaidraw_test": package, "comfy": comfy, "comfy.
     prompt_syntax = importlib.import_module("llmaidraw_test.nai.prompt_syntax")
     chatgpt_account = importlib.import_module("llmaidraw_test.llm.chatgpt_account")
     llm_nodes = importlib.import_module("llmaidraw_test.llm.nodes")
+    image_apis = importlib.import_module("llmaidraw_test.llm.image_apis")
+    routes = importlib.import_module("llmaidraw_test.llm.routes")
 
 ALL_NODES = {**nodes.NODE_CLASS_MAPPINGS, **llm_nodes.NODE_CLASS_MAPPINGS}
 PROFILE_CONFIG = {
@@ -155,6 +162,32 @@ class LLMNodeTests(unittest.TestCase):
         self.assertEqual(post.call_args.kwargs["json"], {"prompt": "p", "model": "grok-imagine-image-2.0", "resolution": "2k", "quality": "medium", "n": 1, "aspect_ratio": "16:9", "response_format": "b64_json"})
         with self.assertRaisesRegex(RuntimeError, "grok_image.missing"):
             llm_nodes.LLMAIDrawGrokImage().generate("missing", "p", "grok-imagine-image-2.0", "auto", "1k", "low", 1, 0, 60)
+
+    def test_refresh_models_filters_image_models_and_saves_them(self):
+        data = {"data": [{"id": "gpt-6.1-sol"}, {"id": "gpt-image-2.5-flare"}, {"id": "gpt-image-2.5-sunburst"}]}
+        response = json_response(data)
+        with patch.object(requests, "get", return_value=response) as get, patch.object(routes, "save_profile_models") as save:
+            models = routes.refresh_models("LLMAIDrawGPTImage", "official")
+        self.assertEqual(models, ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
+        self.assertEqual(get.call_args.args[0], "https://api.openai.com/v1/models")
+        save.assert_called_once_with("gpt_image", "official", models)
+
+    def test_gemini_model_list_and_proxy_fallback(self):
+        data = {"models": [
+            {"name": "models/gemini-3.1-flash-image", "supportedGenerationMethods": ["generateContent"]},
+            {"name": "models/text-embedding-005", "supportedGenerationMethods": ["embedContent"]},
+            {"name": "models/gemini-6-pro", "supportedGenerationMethods": ["generateContent"]},
+        ]}
+        with patch.object(requests, "get", return_value=json_response(data)):
+            self.assertEqual(image_apis.gemini_list_models("https://g.test", "k", 60), ["gemini-3.1-flash-image"])
+        with patch.object(requests, "get", return_value=json_response({"data": [{"id": "draw-b"}, {"id": "draw-a"}]})):
+            self.assertEqual(image_apis.openai_list_models("https://proxy.test", "k", 60), ["draw-a", "draw-b"])
+
+    def test_saved_models_extend_model_choices(self):
+        saved = {"gpt_image": {"official": {**PROFILE_CONFIG["gpt_image"]["official"], "models": ["gpt-image-2.5-flare"]}, "proxy": {"models": ["gpt-image-2.5-sunburst", "draw-x"]}}}
+        with patch.object(config, "load_config", return_value=saved):
+            choices = llm_nodes.LLMAIDrawGPTImage.INPUT_TYPES()["required"]["model"][0]
+        self.assertEqual(choices, ["gpt-image-2.5-sunburst", "gpt-image-2.5-flare", "draw-x"])
 
 
 class GenerationTests(unittest.TestCase):
