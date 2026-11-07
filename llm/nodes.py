@@ -17,8 +17,10 @@ def _prompt():
     return ("STRING", {"default": "", "multiline": True, "dynamicPrompts": False})
 
 
-def _references(image):
-    return [] if image is None else [image_to_png(pixels) for pixels in image]
+def _references(image, extra_images):
+    # The frontend adds image_2, image_3, ... as references are connected.
+    images = [image] + [extra_images[name] for name in sorted(extra_images, key=lambda name: int(name.removeprefix("image_")))]
+    return [image_to_png(pixels) for batch in images if batch is not None for pixels in batch]
 
 
 class LLMAIDrawGPTImage:
@@ -51,10 +53,10 @@ class LLMAIDrawGPTImage:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, seed, timeout_sec, force_login, image=None, mask=None):
+    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, seed, timeout_sec, force_login, image=None, mask=None, **extra_images):
         if mask is not None and image is None:
             raise ValueError("Connect an image to edit with the mask.")
-        references = _references(image)
+        references = _references(image, extra_images)
         mask_png = None if mask is None else edit_mask_to_png(mask, (image.shape[2], image.shape[1]))
         options = {"size": size, "quality": quality, "background": background, "output_format": output_format, "moderation": moderation}
         if output_format != "png":
@@ -92,7 +94,7 @@ class LLMAIDrawNanoBanana2:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, seed, timeout_sec, image=None):
+    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, seed, timeout_sec, image=None, **extra_images):
         base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         image_config = {}
         if aspect_ratio != "auto":
@@ -102,7 +104,7 @@ class LLMAIDrawNanoBanana2:
         generation_config = {"responseModalities": ["IMAGE"], "temperature": temperature, "seed": seed}
         if image_config:
             generation_config["imageConfig"] = image_config
-        results = gemini_generate(base_url, api_key, model, prompt, _references(image), generation_config, timeout_sec)
+        results = gemini_generate(base_url, api_key, model, prompt, _references(image, extra_images), generation_config, timeout_sec)
         return (images_to_batch(results),)
 
 

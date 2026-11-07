@@ -65,6 +65,7 @@ notepad config.json
 
 - `LLMAIDraw · GPT Image`：`model`（默认 `gpt-image-2.5-sunburst`，可改为更快的 `gpt-image-2.5-flare`）、`size`（最高 4K，超过 2560x1440 为实验性）、`quality`（含 2.5 新增的 `xhigh`/`max`）、`background`（`transparent` 时输出带透明通道，需 png/webp）、`output_format`、`output_compression`、`moderation`、`n`。连接 `image` 时改为图像编辑，批次中的每张图都作为参考图；`mask` 白色区域为编辑区域。
 - `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`、`seed`，可选参考图 `image`。
+- GPT Image 与 Nano Banana 2 支持多参考图：每连接一个参考图会自动增加一个空的参考图输入，所有输入按顺序发送。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
 
 ## 获取模型列表

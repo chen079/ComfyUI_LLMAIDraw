@@ -148,12 +148,12 @@ class LLMNodeTests(unittest.TestCase):
     def test_nano_banana_request(self):
         data = {"candidates": [{"content": {"parts": [{"text": "ok"}, {"inlineData": {"mimeType": "image/png", "data": base64.b64encode(png_bytes()).decode()}}]}}]}
         with patch.object(requests, "post", return_value=json_response(data)) as post:
-            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 5, 60, torch.zeros((1, 8, 8, 3)))
+            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 5, 60, torch.zeros((1, 8, 8, 3)), image_10=torch.zeros((2, 8, 8, 3)), image_2=torch.ones((1, 8, 8, 3)), image_3=None)
         self.assertEqual(tuple(image.shape), (1, 64, 64, 3))
         self.assertEqual(post.call_args.args[0], "https://gemini.test/v1beta/models/gemini-3.1-flash-image:generateContent")
         body = post.call_args.kwargs["json"]
         self.assertEqual(body["generationConfig"]["imageConfig"], {"aspectRatio": "16:9"})
-        self.assertEqual(len(body["contents"][0]["parts"]), 2)
+        self.assertEqual(len(body["contents"][0]["parts"]), 5)
 
     def test_grok_request_and_missing_key(self):
         data = {"data": [{"b64_json": base64.b64encode(png_bytes()).decode()}]}
