@@ -1,4 +1,4 @@
-from .image_codec import calculate_resolution, calculate_skip_cfg_above_sigma, image_to_base64, mask_to_base64, resize_image, resize_mask
+from ..image_codec import calculate_resolution, calculate_skip_cfg_above_sigma, image_to_base64, mask_to_base64, resize_image, resize_mask
 
 
 DEFAULT_MODEL = "nai-diffusion-4-5-full"

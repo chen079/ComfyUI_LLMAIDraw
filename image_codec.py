@@ -8,12 +8,32 @@ from PIL import Image, ImageOps
 import torch
 
 
-def image_to_base64(image):
-    pixels = 255.0 * image[0].cpu().numpy()
-    pil_image = Image.fromarray(np.clip(pixels, 0, 255).astype(np.uint8))
+def image_to_png(pixels):
+    pil_image = Image.fromarray(np.clip(255.0 * pixels.cpu().numpy(), 0, 255).astype(np.uint8))
     output = io.BytesIO()
     pil_image.save(output, format="PNG")
-    return base64.b64encode(output.getvalue()).decode()
+    return output.getvalue()
+
+
+def image_to_base64(image):
+    return base64.b64encode(image_to_png(image[0])).decode()
+
+
+def edit_mask_to_png(mask, size):
+    # OpenAI edits the transparent area; a ComfyUI MASK marks the edited area with 1.
+    alpha = np.clip(255.0 * (1.0 - mask[0].cpu().numpy()), 0, 255).astype(np.uint8)
+    rgba = np.zeros((*alpha.shape, 4), dtype=np.uint8)
+    rgba[..., 3] = alpha
+    output = io.BytesIO()
+    Image.fromarray(rgba).resize(size, Image.NEAREST).save(output, format="PNG")
+    return output.getvalue()
+
+
+def images_to_batch(image_bytes, keep_alpha=False):
+    images = [bytes_to_image(data, keep_alpha) for data in image_bytes]
+    if any(image.shape != images[0].shape for image in images):
+        raise RuntimeError(f"Generated images have different sizes: {[tuple(image.shape[1:3]) for image in images]}.")
+    return torch.cat(images)
 
 
 def mask_to_base64(image):

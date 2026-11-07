@@ -1,8 +1,8 @@
 import copy
 
 from .generation import DEFAULT_MODEL, FREE_PIXEL_LIMIT, build_generation_request
-from .image_codec import blank_image, bytes_to_image, calculate_resolution, first_image_from_zip, image_to_base64, resize_image, resize_mask
-from .nai_client import NovelAIClient
+from ..image_codec import blank_image, bytes_to_image, calculate_resolution, first_image_from_zip, image_to_base64, resize_image, resize_mask
+from .client import NovelAIClient
 from .prompt_syntax import prompt_to_nai
 
 
@@ -108,7 +108,7 @@ class NAINeoEncodeVibe:
     CATEGORY = CATEGORY
 
     def __init__(self):
-        self.client = NovelAIClient.from_environment()
+        self.client = NovelAIClient.from_config()
 
     def encode(self, image, model, information_extracted, timeout_sec):
         if image.shape[0] != 1:
@@ -200,7 +200,7 @@ class NAINeoGenerate:
     CATEGORY = CATEGORY
 
     def __init__(self):
-        self.client = NovelAIClient.from_environment()
+        self.client = NovelAIClient.from_config()
 
     def generate(self, limit_opus_free, width, height, positive, negative, steps, cfg, decrisper, variety, smea, sampler, scheduler, seed, uncond_scale, cfg_rescale, keep_alpha, option=None):
         model, action, params = build_generation_request(width, height, positive, negative, steps, cfg, decrisper, variety, smea, sampler, scheduler, seed, uncond_scale, cfg_rescale, limit_opus_free, option)
@@ -235,7 +235,7 @@ class _DirectorNode:
         return _director_inputs()
 
     def __init__(self):
-        self.client = NovelAIClient.from_environment()
+        self.client = NovelAIClient.from_config()
 
     def run(self, image, limit_opus_free, ignore_errors, req_type, options=None):
         height, width = image.shape[1:3]

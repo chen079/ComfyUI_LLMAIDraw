@@ -138,5 +138,59 @@
     "display_name": "NAI Neo · V4 Negative Prompt",
     "inputs": { "negative_caption": { "name": "Negative caption" } },
     "outputs": { "0": { "name": "Negative prompt" } }
+  },
+  "LLMAIDrawGPTImage": {
+    "display_name": "LLMAIDraw · GPT Image",
+    "description": "Generate or edit images with OpenAI GPT Image through an API profile or a ChatGPT account.",
+    "inputs": {
+      "profile": { "name": "Profile", "tooltip": "Profiles come from the gpt_image section of config.json; chatgpt_account signs in with a ChatGPT account." },
+      "prompt": { "name": "Prompt" },
+      "model": { "name": "Model", "tooltip": "Image model for API profiles, e.g. gpt-image-2.5-sunburst or gpt-image-2.5-flare. chatgpt_account uses the image tool of the ChatGPT account." },
+      "size": { "name": "Size", "tooltip": "Sizes above 2560x1440 are experimental and need a GPT Image 2 or newer model." },
+      "quality": { "name": "Quality", "tooltip": "xhigh and max need GPT Image 2.5 or newer." },
+      "background": { "name": "Background" },
+      "output_format": { "name": "Output format" },
+      "output_compression": { "name": "Output compression", "tooltip": "Used only for jpeg and webp." },
+      "moderation": { "name": "Moderation" },
+      "n": { "name": "Image count" },
+      "seed": { "name": "Seed", "tooltip": "Change to run the same request again; ComfyUI reuses cached results for identical inputs." },
+      "timeout_sec": { "name": "Timeout (s)" },
+      "force_login": { "name": "Force login", "tooltip": "Sign in with ChatGPT again even when chatgpt_account already has a saved login." },
+      "image": { "name": "Reference image" },
+      "mask": { "name": "Mask", "tooltip": "White marks the area to edit. Applies to the first image." }
+    },
+    "outputs": { "0": { "name": "Image" } }
+  },
+  "LLMAIDrawNanoBanana2": {
+    "display_name": "LLMAIDraw · Nano Banana 2",
+    "description": "Generate or edit images with Google Gemini (Nano Banana 2).",
+    "inputs": {
+      "profile": { "name": "Profile", "tooltip": "Profiles come from the nano_banana section of config.json." },
+      "prompt": { "name": "Prompt" },
+      "model": { "name": "Model" },
+      "aspect_ratio": { "name": "Aspect ratio" },
+      "image_size": { "name": "Image size" },
+      "temperature": { "name": "Temperature" },
+      "seed": { "name": "Seed" },
+      "timeout_sec": { "name": "Timeout (s)" },
+      "image": { "name": "Reference image", "tooltip": "Reference images; every image in the batch is sent." }
+    },
+    "outputs": { "0": { "name": "Image" } }
+  },
+  "LLMAIDrawGrokImage": {
+    "display_name": "LLMAIDraw · Grok Image",
+    "description": "Generate images with xAI Grok.",
+    "inputs": {
+      "profile": { "name": "Profile", "tooltip": "Profiles come from the grok_image section of config.json." },
+      "prompt": { "name": "Prompt" },
+      "model": { "name": "Model" },
+      "aspect_ratio": { "name": "Aspect ratio", "tooltip": "auto leaves the aspect ratio to the server default." },
+      "resolution": { "name": "Resolution" },
+      "quality": { "name": "Quality", "tooltip": "Supported by grok-imagine-image-2.0." },
+      "n": { "name": "Image count" },
+      "seed": { "name": "Seed", "tooltip": "Change to run the same request again; ComfyUI reuses cached results for identical inputs." },
+      "timeout_sec": { "name": "Timeout (s)" }
+    },
+    "outputs": { "0": { "name": "Image" } }
   }
 }

@@ -1,9 +1,9 @@
 [project]
-name = "comfyui-naidgenerator-neo"
-description = "NovelAI image generation nodes for ComfyUI under the NAI Neo namespace."
-version = "0.1.0"
+name = "comfyui-llmaidraw"
+description = "NovelAI, GPT Image, Nano Banana 2 and Grok Image generation nodes for ComfyUI."
+version = "0.2.0"
 license = { file = "LICENSE" }
-dependencies = ["python-dotenv"]
+dependencies = ["requests"]
 
 [project.urls]
-Repository = "https://github.com/chen079/ComfyUI_NAIDGenerator-neo"
+Repository = "https://github.com/chen079/ComfyUI_LLMAIDraw"

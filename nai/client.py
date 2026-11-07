@@ -1,28 +1,14 @@
 import base64
 import json
-from os import environ
-from pathlib import Path
 
-import dotenv
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
+from ..config import CONFIG_FILE, load_config
+from ..http_errors import raise_for_status
+
 
 IMAGE_URL = "https://image.novelai.net"
-ENV_FILE = Path(__file__).with_name(".env")
-
-
-def _raise_for_status(response, access_token, image=None):
-    try:
-        response.raise_for_status()
-    except requests.HTTPError as error:
-        detail = response.text.replace(access_token, "[redacted]")
-        if image:
-            detail = detail.replace(image, "[image]")
-        detail = detail.strip()[:500]
-        correlation_id = response.headers.get("x-correlation-id", "unavailable")
-        error.args = (f"{error}\nNovelAI response: {detail or '(empty body)'}\nCorrelation ID: {correlation_id}",)
-        raise
 
 
 def _request_target(retry):
@@ -39,11 +25,10 @@ class NovelAIClient:
         self.access_token = access_token
 
     @classmethod
-    def from_environment(cls):
-        dotenv.load_dotenv(dotenv_path=ENV_FILE)
-        token = environ.get("NAI_ACCESS_TOKEN")
+    def from_config(cls):
+        token = load_config().get("novelai", {}).get("access_token")
         if not token:
-            raise RuntimeError(f"Set NAI_ACCESS_TOKEN in {ENV_FILE}.")
+            raise RuntimeError(f"Set novelai.access_token in {CONFIG_FILE}.")
         return cls(token)
 
     def encode_vibe(self, image, model, information_extracted, timeout=120):
@@ -53,7 +38,7 @@ class NovelAIClient:
             "request": ("blob", json.dumps(request), "application/json"),
         }
         response = requests.post(f"{IMAGE_URL}/ai/encode-vibe", files=files, headers=self._headers(), timeout=timeout)
-        _raise_for_status(response, self.access_token, image)
+        raise_for_status(response, self.access_token, "NovelAI", image)
         if not response.content:
             raise RuntimeError("NovelAI returned an empty vibe encoding.")
         return base64.b64encode(response.content).decode()
@@ -63,7 +48,7 @@ class NovelAIClient:
         request = _request_target(retry)
         try:
             response = request.post(f"{IMAGE_URL}/ai/generate-image", json=data, headers=self._headers(), timeout=timeout)
-            _raise_for_status(response, self.access_token)
+            raise_for_status(response, self.access_token, "NovelAI")
             return response.content
         finally:
             if isinstance(request, requests.Session):
@@ -76,7 +61,7 @@ class NovelAIClient:
         request = _request_target(retry)
         try:
             response = request.post(f"{IMAGE_URL}/ai/augment-image", json=data, headers=self._headers(), timeout=timeout)
-            _raise_for_status(response, self.access_token, image)
+            raise_for_status(response, self.access_token, "NovelAI", image)
             return response.content
         finally:
             if isinstance(request, requests.Session):

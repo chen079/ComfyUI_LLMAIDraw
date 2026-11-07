@@ -1,19 +1,75 @@
-# ComfyUI_NAIDGenerator-neo
+# ComfyUI_LLMAIDraw
 
-面向 ComfyUI 的 NovelAI 图像生成节点。项目使用独立的节点命名空间和模块化实现，支持 NAI Diffusion V5、文本生成、图生图、局部重绘、V3/V4 Vibe Transfer 以及 Director Tools。
+面向 ComfyUI 的在线绘图节点（原 ComfyUI_NAIDGenerator-neo）：
+
+- **NovelAI**：NAI Diffusion V5、文本生成、图生图、局部重绘、V3/V4 Vibe Transfer 以及 Director Tools。
+- **GPT Image**：OpenAI 图像生成与编辑，支持 API Key 或 ChatGPT 账号登录。
+- **Nano Banana 2**：Google Gemini 图像生成与参考图编辑。
+- **Grok Image**：xAI 图像生成。
 
 ## 安装
 
 在 ComfyUI 的 `custom_nodes` 目录执行：
 
 ```bash
-git clone https://github.com/chen079/ComfyUI_NAIDGenerator-neo.git
+git clone https://github.com/chen079/ComfyUI_LLMAIDraw.git
 ```
 ```bash
-python -m pip install -r ComfyUI_NAIDGenerator-neo/requirements.txt
+python -m pip install -r ComfyUI_LLMAIDraw/requirements.txt
 ```
 
-节点位于 `NAI Neo` 分类。
+NovelAI 节点位于 `NAI Neo` 分类，其余节点位于 `LLMAIDraw` 分类。
+
+## 配置文件
+
+所有凭据都写在插件目录的 `config.json` 中。首次使用时复制 `config.example.json`：
+
+```powershell
+Set-Location ComfyUI/custom_nodes/ComfyUI_LLMAIDraw
+Copy-Item config.example.json config.json
+notepad config.json
+```
+
+```json
+{
+  "novelai": { "access_token": "pst-你的完整令牌" },
+  "gpt_image": {
+    "official": { "base_url": "https://api.openai.com/v1", "api_key": "sk-..." },
+    "my-proxy": { "base_url": "https://your-proxy.example/v1", "api_key": "sk-..." }
+  },
+  "nano_banana": {
+    "official": { "base_url": "https://generativelanguage.googleapis.com/v1beta", "api_key": "AIza..." }
+  },
+  "grok_image": {
+    "official": { "base_url": "https://api.x.ai/v1", "api_key": "xai-..." }
+  },
+  "chatgpt_account": { "model": "gpt-5" }
+}
+```
+
+- `gpt_image`、`nano_banana`、`grok_image` 下的每个键都是一个配置，可以同时写官方地址和任意多个自定义地址；节点的 `profile` 下拉框按名称选择。自定义地址需要兼容对应服务的官方接口格式（OpenAI Images、Gemini `generateContent`、xAI Images）。
+- 修改 `config.json` 中的 `base_url` / `api_key` 后立即生效；新增或删除配置名称后需要刷新页面或重启 ComfyUI，下拉框才会更新。
+- `config.json` 已在 `.gitignore` 中，不会被提交。
+
+## ChatGPT 账号登录（GPT Image）
+
+在 `LLMAIDraw · GPT Image` 节点把 `profile` 选为 `chatgpt_account` 即可使用 ChatGPT 账号额度绘图：
+
+1. 首次运行时，节点会在本机浏览器打开 ChatGPT 登录页（控制台也会打印登录链接），登录后回到 ComfyUI，生成会继续进行。
+2. 登录结果保存在 `config.json` 的 `chatgpt_account` 中，过期后自动刷新。需要切换账号时打开节点的 `force_login`。
+3. 登录回调使用本机 `localhost:1455` 端口，必须在运行 ComfyUI 的同一台电脑上的浏览器完成登录。
+
+该方式使用与 Codex CLI "Sign in with ChatGPT" 相同的登录流程和 ChatGPT 内部接口，不是 OpenAI 公开 API，可能随时变更或失效；`chatgpt_account.model` 为调用绘图工具的对话模型。Nano Banana 2 与 Grok Image 没有官方的账号登录接口，只支持 `base_url` + `api_key`。
+
+## 节点参数
+
+- `LLMAIDraw · GPT Image`：`model`（默认 `gpt-image-2.5-sunburst`，可改为更快的 `gpt-image-2.5-flare`）、`size`（最高 4K，超过 2560x1440 为实验性）、`quality`（含 2.5 新增的 `xhigh`/`max`）、`background`（`transparent` 时输出带透明通道，需 png/webp）、`output_format`、`output_compression`、`moderation`、`n`。连接 `image` 时改为图像编辑，批次中的每张图都作为参考图；`mask` 白色区域为编辑区域。
+- `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`、`seed`，可选参考图 `image`。
+- `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
+
+`model` 是文本框，新模型发布后（例如 GPT Image 2.6）直接填写新的模型 ID 即可。
+
+`seed` 在 GPT Image 和 Grok Image 中只用于让 ComfyUI 重新运行相同请求。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
 
 界面提供英文和简体中文翻译，跟随 ComfyUI 的语言设置自动切换。节点 ID、端口类型和下拉选项值不会随界面语言改变，因此切换语言不会影响工作流。
 
@@ -23,58 +79,27 @@ NovelAI 在界面中将这里使用的密钥称为 **Persistent API Token**。
 
 1. 打开 [NovelAI Stories](https://novelai.net/stories) 并登录，在页面左上角点击齿轮按钮，打开 **User Settings**。
 
-   ![打开 NovelAI 用户设置](images/Step1.png)
+   ![打开 NovelAI 用户设置](docs/images/Step1.png)
 
 2. 在左侧选择 **Account**，然后点击 **Get Persistent API Token**。
 
-   ![进入 Account 并获取 Persistent API Token](images/Step2.png)
+   ![进入 Account 并获取 Persistent API Token](docs/images/Step2.png)
 
 3. 在弹窗中点击 **Show Full Token** 显示完整令牌，再点击右侧复制按钮。令牌通常以 `pst-` 开头。
 
-   ![显示并复制 Persistent API Token](images/Step3.png)
+   ![显示并复制 Persistent API Token](docs/images/Step3.png)
 
 4. 妥善保存令牌。NovelAI 同一时间只允许一个 Persistent API Token；创建新令牌会使旧令牌失效。
 
-## 配置 Token
+## 配置 NovelAI Token
 
-在本插件目录的 `.env` 文件中设置 NovelAI Persistent API Token。可以复制 `.env.example` 后填写：
+把令牌写入 `config.json` 的 `novelai.access_token`，保存后重启 ComfyUI。旧版本的 `.env` 不再读取，请把其中 `NAI_ACCESS_TOKEN=` 后面的值迁移过来。
 
-Windows PowerShell：
+如果提示 `Set novelai.access_token`，请检查：
 
-```powershell
-Set-Location ComfyUI/custom_nodes/ComfyUI_NAIDGenerator-neo
-Copy-Item .env.example .env
-notepad .env
-```
-
-Linux / macOS：
-
-```bash
-cd ComfyUI/custom_nodes/ComfyUI_NAIDGenerator-neo
-cp .env.example .env
-```
-
-将 `.env` 内容修改为一行：
-
-```dotenv
-NAI_ACCESS_TOKEN=pst-你的完整令牌
-```
-
-等号两侧不要添加空格，也不需要引号。保存文件后完整重启 ComfyUI。
-
-例如使用默认目录结构时，配置文件路径为：
-
-```text
-ComfyUI/custom_nodes/ComfyUI_NAIDGenerator-neo/.env
-```
-
-如果启动时提示 `Set NAI_ACCESS_TOKEN`，请依次检查：
-
-- 文件名确实是 `.env`，而不是 Windows 隐藏扩展名后的 `.env.txt`。
-- `.env` 位于 `ComfyUI_NAIDGenerator-neo` 目录，与 `nodes.py` 同级。
-- 配置键名完整写成 `NAI_ACCESS_TOKEN`。
-- 修改 `.env` 后已经完整重启 ComfyUI。
-- 如果刚生成过新令牌，`.env` 中没有继续使用已失效的旧令牌。
+- `config.json` 位于 `ComfyUI_LLMAIDraw` 目录，与 `nodes.py` 同级，且文件名不是 `config.json.txt`。
+- JSON 格式正确（键和值都使用英文双引号）。
+- 如果刚生成过新令牌，没有继续使用已失效的旧令牌。
 
 ## 节点
 
@@ -108,6 +133,23 @@ Generate 和 Director 节点不会写入 `output`。需要保存时，请连接 
 ## 迁移说明
 
 本项目使用 `NAINeo...` 节点 ID 及 `NAI_NEO_OPTION`、`NAI_NEO_VIBE` 端口类型。原项目节点不会被注册，旧工作流需要重新添加并连接 NAI Neo 节点。
+
+## 目录结构
+
+```text
+ComfyUI_LLMAIDraw/
+├── __init__.py          # 注册全部节点
+├── config.py            # 读取 / 保存 config.json
+├── config.example.json  # 配置模板
+├── http_errors.py       # 统一的请求错误信息
+├── image_codec.py       # ComfyUI 图像与 PNG / 遮罩互转
+├── nai/                 # NovelAI：请求、生成参数、提示词语法、节点
+├── llm/                 # GPT Image / Nano Banana 2 / Grok Image 及 ChatGPT 账号登录
+├── locales/             # 中英文界面翻译
+├── workflows/           # 示例工作流
+├── docs/images/         # 文档截图
+└── tests/
+```
 
 ## 致谢与许可
 

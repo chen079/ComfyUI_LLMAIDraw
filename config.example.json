@@ -1,0 +1,17 @@
+{
+  "novelai": {
+    "access_token": ""
+  },
+  "gpt_image": {
+    "official": { "base_url": "https://api.openai.com/v1", "api_key": "" }
+  },
+  "nano_banana": {
+    "official": { "base_url": "https://generativelanguage.googleapis.com/v1beta", "api_key": "" }
+  },
+  "grok_image": {
+    "official": { "base_url": "https://api.x.ai/v1", "api_key": "" }
+  },
+  "chatgpt_account": {
+    "model": "gpt-5"
+  }
+}
