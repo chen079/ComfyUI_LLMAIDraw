@@ -138,6 +138,7 @@ def generate(prompt, tool, images, mask_png, force_login, timeout):
     }
     with requests.post(RESPONSES_URL, json=body, headers=headers, stream=True, timeout=timeout) as response:
         raise_for_status(response, account["access_token"], "ChatGPT")
+        response.encoding = "utf-8"
         for line in response.iter_lines(decode_unicode=True):
             if not line or not line.startswith("data:"):
                 continue
