@@ -145,7 +145,7 @@
     "inputs": {
       "profile": { "name": "Profile", "tooltip": "Profiles come from the gpt_image section of config.json; chatgpt_account signs in with a ChatGPT account." },
       "prompt": { "name": "Prompt" },
-      "model": { "name": "Model", "tooltip": "Image model for API profiles. chatgpt_account uses chatgpt_account.model from config.json instead. Use the refresh models button to load the models of the selected profile into this list." },
+      "model": { "name": "Model", "tooltip": "Image model for API profiles. chatgpt_account ignores it: ChatGPT picks the image model. Use the refresh models button to load the models of the selected profile into this list." },
       "size": { "name": "Size", "tooltip": "Sizes above 2560x1440 are experimental and need a GPT Image 2 or newer model." },
       "quality": { "name": "Quality", "tooltip": "xhigh and max need GPT Image 2.5 or newer." },
       "background": { "name": "Background" },

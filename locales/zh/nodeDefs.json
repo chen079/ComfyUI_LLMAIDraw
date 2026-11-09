@@ -127,7 +127,7 @@
     "inputs": {
       "profile": { "name": "配置", "tooltip": "配置来自 config.json 的 gpt_image 部分；chatgpt_account 使用 ChatGPT 账号登录。" },
       "prompt": { "name": "提示词" },
-      "model": { "name": "模型", "tooltip": "API 配置使用的图像模型。chatgpt_account 改用 config.json 中的 chatgpt_account.model。点击“获取模型列表”按钮可载入所选配置的模型。" },
+      "model": { "name": "模型", "tooltip": "API 配置使用的图像模型。chatgpt_account 不使用此项，由 ChatGPT 自行选择图像模型。点击“获取模型列表”按钮可载入所选配置的模型。" },
       "size": { "name": "尺寸", "tooltip": "超过 2560x1440 的尺寸为实验性功能，需要 GPT Image 2 或更新的模型。" },
       "quality": { "name": "质量", "tooltip": "xhigh 和 max 需要 GPT Image 2.5 或更新的模型。" },
       "background": { "name": "背景" },

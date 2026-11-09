@@ -25,7 +25,7 @@ def _references(image, extra_images):
 
 class LLMAIDrawGPTImage:
     CONFIG_SECTION = "gpt_image"
-    DEFAULT_MODEL = "gpt-image-2.5-sunburst"
+    MODELS = ["gpt-image-2.6-sunburst", "gpt-image-2.6-flare", "gpt-image-2.5-sunburst", "gpt-image-2.5-flare"]
     list_models = staticmethod(openai_list_models)
 
     @classmethod
@@ -34,7 +34,7 @@ class LLMAIDrawGPTImage:
             "required": {
                 "profile": (profile_names(cls.CONFIG_SECTION) + [ACCOUNT_PROFILE], {"tooltip": f"Profiles come from the gpt_image section of config.json; {ACCOUNT_PROFILE} signs in with a ChatGPT account."}),
                 "prompt": _prompt(),
-                "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": f"Image model for API profiles. {ACCOUNT_PROFILE} uses chatgpt_account.model from config.json instead. {MODEL_TOOLTIP}"}),
+                "model": (model_names(cls.CONFIG_SECTION, cls.MODELS), {"tooltip": f"Image model for API profiles. {ACCOUNT_PROFILE} ignores it: ChatGPT picks the image model. {MODEL_TOOLTIP}"}),
                 "size": (GPT_SIZES, {"default": "auto", "tooltip": "Sizes above 2560x1440 are experimental and need a GPT Image 2 or newer model."}),
                 "quality": (["auto", "low", "medium", "high", "xhigh", "max"], {"default": "auto", "tooltip": "xhigh and max need GPT Image 2.5 or newer."}),
                 "background": (["auto", "transparent", "opaque"], {"default": "auto"}),
@@ -71,7 +71,7 @@ class LLMAIDrawGPTImage:
 
 class LLMAIDrawNanoBanana2:
     CONFIG_SECTION = "nano_banana"
-    DEFAULT_MODEL = "gemini-3.1-flash-image"
+    MODELS = ["gemini-3.1-flash-image"]
     list_models = staticmethod(gemini_list_models)
 
     @classmethod
@@ -80,7 +80,7 @@ class LLMAIDrawNanoBanana2:
             "required": {
                 "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the nano_banana section of config.json."}),
                 "prompt": _prompt(),
-                "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": MODEL_TOOLTIP}),
+                "model": (model_names(cls.CONFIG_SECTION, cls.MODELS), {"tooltip": MODEL_TOOLTIP}),
                 "aspect_ratio": (GEMINI_ASPECT_RATIOS, {"default": "auto"}),
                 "image_size": (["auto", "1K", "2K", "4K"], {"default": "auto"}),
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
@@ -110,7 +110,7 @@ class LLMAIDrawNanoBanana2:
 
 class LLMAIDrawGrokImage:
     CONFIG_SECTION = "grok_image"
-    DEFAULT_MODEL = "grok-imagine-image-2.0"
+    MODELS = ["grok-imagine-image-2.0"]
     list_models = staticmethod(openai_list_models)
 
     @classmethod
@@ -118,7 +118,7 @@ class LLMAIDrawGrokImage:
         return {"required": {
             "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the grok_image section of config.json."}),
             "prompt": _prompt(),
-            "model": (model_names(cls.CONFIG_SECTION, cls.DEFAULT_MODEL), {"tooltip": MODEL_TOOLTIP}),
+            "model": (model_names(cls.CONFIG_SECTION, cls.MODELS), {"tooltip": MODEL_TOOLTIP}),
             "aspect_ratio": (GROK_ASPECT_RATIOS, {"default": "auto", "tooltip": "auto leaves the aspect ratio to the server default."}),
             "resolution": (["1k", "2k"], {"default": "1k"}),
             "quality": (["low", "medium"], {"default": "medium", "tooltip": "Supported by grok-imagine-image-2.0."}),

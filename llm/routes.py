@@ -4,10 +4,12 @@ from aiohttp import web
 from server import PromptServer
 
 from ..config import get_profile, save_profile_models
-from .nodes import NODE_CLASS_MAPPINGS
+from .nodes import ACCOUNT_PROFILE, NODE_CLASS_MAPPINGS
 
 
 def refresh_models(node_type, profile):
+    if profile == ACCOUNT_PROFILE:
+        raise RuntimeError(f"{ACCOUNT_PROFILE} has no model list: ChatGPT picks the image model.")
     node_class = NODE_CLASS_MAPPINGS[node_type]
     base_url, api_key = get_profile(node_class.CONFIG_SECTION, profile)
     models = node_class.list_models(base_url, api_key, 60)

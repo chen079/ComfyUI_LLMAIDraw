@@ -187,7 +187,7 @@ class LLMNodeTests(unittest.TestCase):
         saved = {"gpt_image": {"official": {**PROFILE_CONFIG["gpt_image"]["official"], "models": ["gpt-image-2.5-flare"]}, "proxy": {"models": ["gpt-image-2.5-sunburst", "draw-x"]}}}
         with patch.object(config, "load_config", return_value=saved):
             choices = llm_nodes.LLMAIDrawGPTImage.INPUT_TYPES()["required"]["model"][0]
-        self.assertEqual(choices, ["gpt-image-2.5-sunburst", "gpt-image-2.5-flare", "draw-x"])
+        self.assertEqual(choices, llm_nodes.LLMAIDrawGPTImage.MODELS + ["draw-x"])
 
 
 class GenerationTests(unittest.TestCase):

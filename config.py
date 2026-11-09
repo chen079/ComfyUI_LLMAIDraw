@@ -31,8 +31,8 @@ def profile_names(section):
     return list(load_config().get(section, {})) or ["official"]
 
 
-def model_names(section, default):
-    names = [default]
+def model_names(section, defaults):
+    names = list(defaults)
     for profile in load_config().get(section, {}).values():
         names += [model for model in profile.get("models", []) if model not in names]
     return names
