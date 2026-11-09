@@ -135,7 +135,6 @@
       "output_compression": { "name": "压缩质量", "tooltip": "仅对 jpeg 和 webp 生效。" },
       "moderation": { "name": "审核强度" },
       "n": { "name": "图片数量" },
-      "seed": { "name": "种子", "tooltip": "修改后可重新运行相同请求；输入完全相同时 ComfyUI 会复用缓存结果。" },
       "timeout_sec": { "name": "超时（秒）" },
       "force_login": { "name": "强制重新登录", "tooltip": "即使 chatgpt_account 已保存登录，也重新登录 ChatGPT。" },
       "image": { "name": "参考图" },
@@ -153,7 +152,6 @@
       "aspect_ratio": { "name": "宽高比" },
       "image_size": { "name": "分辨率" },
       "temperature": { "name": "温度" },
-      "seed": { "name": "种子" },
       "timeout_sec": { "name": "超时（秒）" },
       "image": { "name": "参考图", "tooltip": "批次中的每张图都会作为参考图发送。" }
     },
@@ -170,7 +168,6 @@
       "resolution": { "name": "分辨率" },
       "quality": { "name": "质量", "tooltip": "grok-imagine-image-2.0 支持。" },
       "n": { "name": "图片数量" },
-      "seed": { "name": "种子", "tooltip": "修改后可重新运行相同请求；输入完全相同时 ComfyUI 会复用缓存结果。" },
       "timeout_sec": { "name": "超时（秒）" }
     },
     "outputs": { "0": { "name": "图像" } }

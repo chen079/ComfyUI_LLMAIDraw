@@ -7,7 +7,6 @@ from ..image_codec import edit_mask_to_png, image_to_png, images_to_batch
 CATEGORY = "LLMAIDraw"
 ACCOUNT_PROFILE = "chatgpt_account"
 MODEL_TOOLTIP = "Use the refresh models button to load the models of the selected profile into this list."
-SEED_TOOLTIP = "Change to run the same request again; ComfyUI reuses cached results for identical inputs."
 GEMINI_ASPECT_RATIOS = ["auto", "1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"]
 GPT_SIZES = ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "1152x2048", "3840x2160", "2160x3840"]
 GROK_ASPECT_RATIOS = ["auto", "1:1", "3:4", "4:3", "9:16", "16:9", "2:3", "3:2", "9:19.5", "19.5:9", "9:20", "20:9", "1:2", "2:1", "21:9", "5:2"]
@@ -42,7 +41,6 @@ class LLMAIDrawGPTImage:
                 "output_compression": ("INT", {"default": 100, "min": 0, "max": 100, "step": 1, "tooltip": "Used only for jpeg and webp."}),
                 "moderation": (["auto", "low"], {"default": "auto"}),
                 "n": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff, "tooltip": SEED_TOOLTIP}),
                 "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
                 "force_login": ("BOOLEAN", {"default": False, "tooltip": f"Sign in with ChatGPT again even when {ACCOUNT_PROFILE} already has a saved login."}),
             },
@@ -53,7 +51,7 @@ class LLMAIDrawGPTImage:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, seed, timeout_sec, force_login, image=None, mask=None, **extra_images):
+    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, timeout_sec, force_login, image=None, mask=None, **extra_images):
         if mask is not None and image is None:
             raise ValueError("Connect an image to edit with the mask.")
         references = _references(image, extra_images)
@@ -84,7 +82,6 @@ class LLMAIDrawNanoBanana2:
                 "aspect_ratio": (GEMINI_ASPECT_RATIOS, {"default": "auto"}),
                 "image_size": (["auto", "1K", "2K", "4K"], {"default": "auto"}),
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
                 "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
             },
             "optional": {"image": ("IMAGE", {"tooltip": "Reference images; every image in the batch is sent."})},
@@ -94,14 +91,14 @@ class LLMAIDrawNanoBanana2:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, seed, timeout_sec, image=None, **extra_images):
+    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, timeout_sec, image=None, **extra_images):
         base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         image_config = {}
         if aspect_ratio != "auto":
             image_config["aspectRatio"] = aspect_ratio
         if image_size != "auto":
             image_config["imageSize"] = image_size
-        generation_config = {"responseModalities": ["IMAGE"], "temperature": temperature, "seed": seed}
+        generation_config = {"responseModalities": ["IMAGE"], "temperature": temperature}
         if image_config:
             generation_config["imageConfig"] = image_config
         results = gemini_generate(base_url, api_key, model, prompt, _references(image, extra_images), generation_config, timeout_sec)
@@ -123,7 +120,6 @@ class LLMAIDrawGrokImage:
             "resolution": (["1k", "2k"], {"default": "1k"}),
             "quality": (["low", "medium"], {"default": "medium", "tooltip": "Supported by grok-imagine-image-2.0."}),
             "n": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
-            "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff, "tooltip": SEED_TOOLTIP}),
             "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
         }}
 
@@ -131,7 +127,7 @@ class LLMAIDrawGrokImage:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, aspect_ratio, resolution, quality, n, seed, timeout_sec):
+    def generate(self, profile, prompt, model, aspect_ratio, resolution, quality, n, timeout_sec):
         base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         params = {"model": model, "resolution": resolution, "quality": quality, "n": n}
         if aspect_ratio != "auto":

@@ -153,7 +153,6 @@
       "output_compression": { "name": "Output compression", "tooltip": "Used only for jpeg and webp." },
       "moderation": { "name": "Moderation" },
       "n": { "name": "Image count" },
-      "seed": { "name": "Seed", "tooltip": "Change to run the same request again; ComfyUI reuses cached results for identical inputs." },
       "timeout_sec": { "name": "Timeout (s)" },
       "force_login": { "name": "Force login", "tooltip": "Sign in with ChatGPT again even when chatgpt_account already has a saved login." },
       "image": { "name": "Reference image" },
@@ -171,7 +170,6 @@
       "aspect_ratio": { "name": "Aspect ratio" },
       "image_size": { "name": "Image size" },
       "temperature": { "name": "Temperature" },
-      "seed": { "name": "Seed" },
       "timeout_sec": { "name": "Timeout (s)" },
       "image": { "name": "Reference image", "tooltip": "Reference images; every image in the batch is sent." }
     },
@@ -188,7 +186,6 @@
       "resolution": { "name": "Resolution" },
       "quality": { "name": "Quality", "tooltip": "Supported by grok-imagine-image-2.0." },
       "n": { "name": "Image count" },
-      "seed": { "name": "Seed", "tooltip": "Change to run the same request again; ComfyUI reuses cached results for identical inputs." },
       "timeout_sec": { "name": "Timeout (s)" }
     },
     "outputs": { "0": { "name": "Image" } }

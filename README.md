@@ -64,7 +64,7 @@ notepad config.json
 ## 节点参数
 
 - `LLMAIDraw · GPT Image`：`model`（默认 `gpt-image-2.6-sunburst`，下拉框内置 2.6/2.5 的 Sunburst 和更快的 Flare）、`size`（最高 4K，超过 2560x1440 为实验性）、`quality`（含 2.5 新增的 `xhigh`/`max`）、`background`（`transparent` 时输出带透明通道，需 png/webp）、`output_format`、`output_compression`、`moderation`、`n`。连接 `image` 时改为图像编辑，批次中的每张图都作为参考图；`mask` 白色区域为编辑区域。
-- `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`、`seed`，可选参考图 `image`。
+- `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`，可选参考图 `image`。
 - GPT Image 与 Nano Banana 2 支持多参考图：每连接一个参考图会自动增加一个空的参考图输入，所有输入按顺序发送。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
 
@@ -82,7 +82,7 @@ notepad config.json
 
 `chatgpt_account` 不使用 `model` 下拉框，也没有模型列表：图像模型由 ChatGPT 服务端选择，无法指定；`config.json` 中的 `chatgpt_account.model`（默认 `gpt-6.1-sol`）只是调用绘图工具的对话模型。
 
-`seed` 在 GPT Image 和 Grok Image 中只用于让 ComfyUI 重新运行相同请求。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
+GPT Image、Nano Banana 2 和 Grok Image 的接口不支持种子，因此节点没有 `seed`；输入完全相同时 ComfyUI 会复用缓存结果，修改提示词等输入即可重新生成。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
 
 界面提供英文和简体中文翻译，跟随 ComfyUI 的语言设置自动切换。节点 ID、端口类型和下拉选项值不会随界面语言改变，因此切换语言不会影响工作流。
 

@@ -110,7 +110,7 @@ class LLMNodeTests(unittest.TestCase):
     def test_gpt_image_generation_and_edit(self):
         data = {"data": [{"b64_json": base64.b64encode(png_bytes()).decode()}] * 2}
         node = llm_nodes.LLMAIDrawGPTImage()
-        args = ("official", "a fox girl", "gpt-image-2.5-sunburst", "1024x1024", "high", "auto", "png", 100, "auto", 2, 0, 60, False)
+        args = ("official", "a fox girl", "gpt-image-2.5-sunburst", "1024x1024", "high", "auto", "png", 100, "auto", 2, 60, False)
         with patch.object(requests, "post", return_value=json_response(data)) as post:
             image, = node.generate(*args)
         self.assertEqual(tuple(image.shape), (2, 64, 64, 3))
@@ -132,7 +132,7 @@ class LLMNodeTests(unittest.TestCase):
         response.__exit__ = Mock(return_value=False)
         account = {"access_token": "at", "account_id": "acc", "model": "gpt-5"}
         with patch.object(chatgpt_account, "credentials", return_value=account), patch.object(requests, "post", return_value=response) as post:
-            image, = llm_nodes.LLMAIDrawGPTImage().generate("chatgpt_account", "p", "gpt-image-2.5-sunburst", "auto", "auto", "auto", "webp", 80, "auto", 1, 0, 60, False)
+            image, = llm_nodes.LLMAIDrawGPTImage().generate("chatgpt_account", "p", "gpt-image-2.5-sunburst", "auto", "auto", "auto", "webp", 80, "auto", 1, 60, False)
         self.assertEqual(tuple(image.shape), (1, 64, 64, 3))
         body = post.call_args.kwargs["json"]
         self.assertEqual(body["tools"][0], {"type": "image_generation", "size": "auto", "quality": "auto", "background": "auto", "output_format": "webp", "moderation": "auto", "output_compression": 80})
@@ -148,20 +148,21 @@ class LLMNodeTests(unittest.TestCase):
     def test_nano_banana_request(self):
         data = {"candidates": [{"content": {"parts": [{"text": "ok"}, {"inlineData": {"mimeType": "image/png", "data": base64.b64encode(png_bytes()).decode()}}]}}]}
         with patch.object(requests, "post", return_value=json_response(data)) as post:
-            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 5, 60, torch.zeros((1, 8, 8, 3)), image_10=torch.zeros((2, 8, 8, 3)), image_2=torch.ones((1, 8, 8, 3)), image_3=None)
+            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 60, torch.zeros((1, 8, 8, 3)), image_10=torch.zeros((2, 8, 8, 3)), image_2=torch.ones((1, 8, 8, 3)), image_3=None)
         self.assertEqual(tuple(image.shape), (1, 64, 64, 3))
         self.assertEqual(post.call_args.args[0], "https://gemini.test/v1beta/models/gemini-3.1-flash-image:generateContent")
         body = post.call_args.kwargs["json"]
         self.assertEqual(body["generationConfig"]["imageConfig"], {"aspectRatio": "16:9"})
+        self.assertNotIn("seed", body["generationConfig"])
         self.assertEqual(len(body["contents"][0]["parts"]), 5)
 
     def test_grok_request_and_missing_key(self):
         data = {"data": [{"b64_json": base64.b64encode(png_bytes()).decode()}]}
         with patch.object(requests, "post", return_value=json_response(data)) as post:
-            llm_nodes.LLMAIDrawGrokImage().generate("official", "p", "grok-imagine-image-2.0", "16:9", "2k", "medium", 1, 0, 60)
+            llm_nodes.LLMAIDrawGrokImage().generate("official", "p", "grok-imagine-image-2.0", "16:9", "2k", "medium", 1, 60)
         self.assertEqual(post.call_args.kwargs["json"], {"prompt": "p", "model": "grok-imagine-image-2.0", "resolution": "2k", "quality": "medium", "n": 1, "aspect_ratio": "16:9", "response_format": "b64_json"})
         with self.assertRaisesRegex(RuntimeError, "grok_image.missing"):
-            llm_nodes.LLMAIDrawGrokImage().generate("missing", "p", "grok-imagine-image-2.0", "auto", "1k", "low", 1, 0, 60)
+            llm_nodes.LLMAIDrawGrokImage().generate("missing", "p", "grok-imagine-image-2.0", "auto", "1k", "low", 1, 60)
 
     def test_refresh_models_filters_image_models_and_saves_them(self):
         data = {"data": [{"id": "gpt-6.1-sol"}, {"id": "gpt-image-2.5-flare"}, {"id": "gpt-image-2.5-sunburst"}]}
