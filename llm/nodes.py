@@ -7,6 +7,7 @@ from ..image_codec import edit_mask_to_png, image_to_png, images_to_batch
 CATEGORY = "LLMAIDraw"
 ACCOUNT_PROFILE = "chatgpt_account"
 MODEL_TOOLTIP = "Use the refresh models button to load the models of the selected profile into this list."
+CUSTOM_MODEL = ("STRING", {"default": "", "tooltip": "Model name to use instead of model when not empty."})
 GEMINI_ASPECT_RATIOS = ["auto", "1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9", "1:4", "4:1", "1:8", "8:1"]
 GPT_SIZES = ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "1152x2048", "3840x2160", "2160x3840"]
 GROK_ASPECT_RATIOS = ["auto", "1:1", "3:4", "4:3", "9:16", "16:9", "2:3", "3:2", "9:19.5", "19.5:9", "9:20", "20:9", "1:2", "2:1", "21:9", "5:2"]
@@ -44,14 +45,14 @@ class LLMAIDrawGPTImage:
                 "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
                 "force_login": ("BOOLEAN", {"default": False, "tooltip": f"Sign in with ChatGPT again even when {ACCOUNT_PROFILE} already has a saved login."}),
             },
-            "optional": {"image": ("IMAGE",), "mask": ("MASK", {"tooltip": "White marks the area to edit. Applies to the first image."})},
+            "optional": {"custom_model": CUSTOM_MODEL, "image": ("IMAGE",), "mask": ("MASK", {"tooltip": "White marks the area to edit. Applies to the first image."})},
         }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, timeout_sec, force_login, image=None, mask=None, **extra_images):
+    def generate(self, profile, prompt, model, size, quality, background, output_format, output_compression, moderation, n, timeout_sec, force_login, custom_model="", image=None, mask=None, **extra_images):
         if mask is not None and image is None:
             raise ValueError("Connect an image to edit with the mask.")
         references = _references(image, extra_images)
@@ -63,7 +64,7 @@ class LLMAIDrawGPTImage:
             results = [chatgpt_account.generate(prompt, options, references, mask_png, force_login and index == 0, timeout_sec) for index in range(n)]
         else:
             base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
-            results = openai_generate(base_url, api_key, prompt, {"model": model, "n": n, **options}, references, mask_png, timeout_sec)
+            results = openai_generate(base_url, api_key, prompt, {"model": custom_model.strip() or model, "n": n, **options}, references, mask_png, timeout_sec)
         return (images_to_batch(results, background == "transparent"),)
 
 
@@ -84,14 +85,14 @@ class LLMAIDrawNanoBanana2:
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
             },
-            "optional": {"image": ("IMAGE", {"tooltip": "Reference images; every image in the batch is sent."})},
+            "optional": {"custom_model": CUSTOM_MODEL, "image": ("IMAGE", {"tooltip": "Reference images; every image in the batch is sent."})},
         }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, timeout_sec, image=None, **extra_images):
+    def generate(self, profile, prompt, model, aspect_ratio, image_size, temperature, timeout_sec, custom_model="", image=None, **extra_images):
         base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
         image_config = {}
         if aspect_ratio != "auto":
@@ -101,7 +102,7 @@ class LLMAIDrawNanoBanana2:
         generation_config = {"responseModalities": ["IMAGE"], "temperature": temperature}
         if image_config:
             generation_config["imageConfig"] = image_config
-        results = gemini_generate(base_url, api_key, model, prompt, _references(image, extra_images), generation_config, timeout_sec)
+        results = gemini_generate(base_url, api_key, custom_model.strip() or model, prompt, _references(image, extra_images), generation_config, timeout_sec)
         return (images_to_batch(results),)
 
 
@@ -121,15 +122,15 @@ class LLMAIDrawGrokImage:
             "quality": (["low", "medium"], {"default": "medium", "tooltip": "Supported by grok-imagine-image-2.0."}),
             "n": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
             "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
-        }}
+        }, "optional": {"custom_model": CUSTOM_MODEL}}
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, profile, prompt, model, aspect_ratio, resolution, quality, n, timeout_sec):
+    def generate(self, profile, prompt, model, aspect_ratio, resolution, quality, n, timeout_sec, custom_model=""):
         base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
-        params = {"model": model, "resolution": resolution, "quality": quality, "n": n}
+        params = {"model": custom_model.strip() or model, "resolution": resolution, "quality": quality, "n": n}
         if aspect_ratio != "auto":
             params["aspect_ratio"] = aspect_ratio
         return (images_to_batch(xai_generate(base_url, api_key, prompt, params, timeout_sec)),)

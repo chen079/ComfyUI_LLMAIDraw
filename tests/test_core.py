@@ -148,7 +148,7 @@ class LLMNodeTests(unittest.TestCase):
     def test_nano_banana_request(self):
         data = {"candidates": [{"content": {"parts": [{"text": "ok"}, {"inlineData": {"mimeType": "image/png", "data": base64.b64encode(png_bytes()).decode()}}]}}]}
         with patch.object(requests, "post", return_value=json_response(data)) as post:
-            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 60, torch.zeros((1, 8, 8, 3)), image_10=torch.zeros((2, 8, 8, 3)), image_2=torch.ones((1, 8, 8, 3)), image_3=None)
+            image, = llm_nodes.LLMAIDrawNanoBanana2().generate("official", "p", "gemini-3.1-flash-image", "16:9", "auto", 1.0, 60, image=torch.zeros((1, 8, 8, 3)), image_10=torch.zeros((2, 8, 8, 3)), image_2=torch.ones((1, 8, 8, 3)), image_3=None)
         self.assertEqual(tuple(image.shape), (1, 64, 64, 3))
         self.assertEqual(post.call_args.args[0], "https://gemini.test/v1beta/models/gemini-3.1-flash-image:generateContent")
         body = post.call_args.kwargs["json"]
@@ -159,30 +159,28 @@ class LLMNodeTests(unittest.TestCase):
     def test_grok_request_and_missing_key(self):
         data = {"data": [{"b64_json": base64.b64encode(png_bytes()).decode()}]}
         with patch.object(requests, "post", return_value=json_response(data)) as post:
-            llm_nodes.LLMAIDrawGrokImage().generate("official", "p", "grok-imagine-image-2.0", "16:9", "2k", "medium", 1, 60)
-        self.assertEqual(post.call_args.kwargs["json"], {"prompt": "p", "model": "grok-imagine-image-2.0", "resolution": "2k", "quality": "medium", "n": 1, "aspect_ratio": "16:9", "response_format": "b64_json"})
+            llm_nodes.LLMAIDrawGrokImage().generate("official", "p", "grok-imagine-image-2.0", "16:9", "2k", "medium", 1, 60, " my-grok ")
+        self.assertEqual(post.call_args.kwargs["json"], {"prompt": "p", "model": "my-grok", "resolution": "2k", "quality": "medium", "n": 1, "aspect_ratio": "16:9", "response_format": "b64_json"})
         with self.assertRaisesRegex(RuntimeError, "grok_image.missing"):
             llm_nodes.LLMAIDrawGrokImage().generate("missing", "p", "grok-imagine-image-2.0", "auto", "1k", "low", 1, 60)
 
-    def test_refresh_models_filters_image_models_and_saves_them(self):
+    def test_refresh_models_lists_all_models_and_saves_them(self):
         data = {"data": [{"id": "gpt-6.1-sol"}, {"id": "gpt-image-2.5-flare"}, {"id": "gpt-image-2.5-sunburst"}]}
         response = json_response(data)
         with patch.object(requests, "get", return_value=response) as get, patch.object(routes, "save_profile_models") as save:
             models = routes.refresh_models("LLMAIDrawGPTImage", "official")
-        self.assertEqual(models, ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
+        self.assertEqual(models, ["gpt-6.1-sol", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
         self.assertEqual(get.call_args.args[0], "https://api.openai.com/v1/models")
         save.assert_called_once_with("gpt_image", "official", models)
 
-    def test_gemini_model_list_and_proxy_fallback(self):
+    def test_gemini_model_list(self):
         data = {"models": [
             {"name": "models/gemini-3.1-flash-image", "supportedGenerationMethods": ["generateContent"]},
             {"name": "models/text-embedding-005", "supportedGenerationMethods": ["embedContent"]},
             {"name": "models/gemini-6-pro", "supportedGenerationMethods": ["generateContent"]},
         ]}
         with patch.object(requests, "get", return_value=json_response(data)):
-            self.assertEqual(image_apis.gemini_list_models("https://g.test", "k", 60), ["gemini-3.1-flash-image"])
-        with patch.object(requests, "get", return_value=json_response({"data": [{"id": "draw-b"}, {"id": "draw-a"}]})):
-            self.assertEqual(image_apis.openai_list_models("https://proxy.test", "k", 60), ["draw-a", "draw-b"])
+            self.assertEqual(image_apis.gemini_list_models("https://g.test", "k", 60), ["gemini-3.1-flash-image", "gemini-6-pro"])
 
     def test_saved_models_extend_model_choices(self):
         saved = {"gpt_image": {"official": {**PROFILE_CONFIG["gpt_image"]["official"], "models": ["gpt-image-2.5-flare"]}, "proxy": {"models": ["gpt-image-2.5-sunburst", "draw-x"]}}}

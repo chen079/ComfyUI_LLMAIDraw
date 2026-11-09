@@ -70,7 +70,7 @@ notepad config.json
 
 ## 获取模型列表
 
-三个 LLMAIDraw 节点都有 **获取模型列表 / Refresh models** 按钮：先选好 `profile`，点击后会请求该配置的 `/models` 接口，把模型写入 `config.json` 中该配置的 `models` 字段，并刷新 `model` 下拉框。名称含 `image` 的模型优先列出；中转站的模型名都不含 `image` 时列出全部模型。
+三个 LLMAIDraw 节点都有 **获取模型列表 / Refresh models** 按钮：先选好 `profile`，点击后会请求该配置的 `/models` 接口，把模型写入 `config.json` 中该配置的 `models` 字段，并刷新 `model` 下拉框。列表包含该接口返回的全部模型，请自行选择图像模型。下拉框中没有的模型可以填写在 `custom_model` 中，不为空时代替 `model` 使用。
 
 不支持 `/models` 的中转站可以手动填写列表：
 
