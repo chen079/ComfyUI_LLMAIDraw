@@ -67,6 +67,7 @@ notepad config.json
 - `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`，可选参考图 `image`。
 - GPT Image 与 Nano Banana 2 支持多参考图：每连接一个参考图会自动增加一个空的参考图输入，所有输入按顺序发送。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
+- 三个节点都有可选的 `custom_model` 文本框：填写后代替 `model` 下拉框使用，可直接输入下拉框中没有的模型名；留空时使用 `model`。
 
 ## 获取模型列表
 
