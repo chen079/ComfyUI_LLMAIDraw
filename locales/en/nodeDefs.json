@@ -206,5 +206,20 @@
       "timeout_sec": { "name": "Timeout (s)" }
     },
     "outputs": { "0": { "name": "Image" } }
+  },
+  "LLMAIDrawSeadream55Edit": {
+    "display_name": "LLMAIDraw · Seedream 5.5 Edit",
+    "description": "Edit images with ByteDance Seedream 5.5 via Wavespeed. Accepts up to 10 reference images.",
+    "inputs": {
+      "profile": { "name": "Profile", "tooltip": "Profiles come from the seedream section of config.json." },
+      "prompt": { "name": "Prompt" },
+      "aspect_ratio": { "name": "Aspect ratio", "tooltip": "auto derives the aspect ratio from the input image." },
+      "resolution": { "name": "Resolution" },
+      "background": { "name": "Background" },
+      "output_format": { "name": "Output format" },
+      "timeout_sec": { "name": "Timeout (s)" },
+      "image": { "name": "Reference image", "tooltip": "Reference images; every image in the batch is sent. Connect more to add additional reference inputs." }
+    },
+    "outputs": { "0": { "name": "Image" } }
   }
 }

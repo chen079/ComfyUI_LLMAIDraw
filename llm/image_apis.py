@@ -75,6 +75,17 @@ def wavespeed_generate(base_url, api_key, prompt, params, timeout):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     body = {"prompt": prompt, **params}
     submit = _post(f"{base_url}/bytedance/seedream-v5.5", api_key, "Wavespeed", timeout, headers=headers, json=body)
+    return _wavespeed_poll(base_url, api_key, headers, submit, timeout)
+
+
+def wavespeed_edit(base_url, api_key, prompt, images, params, timeout):
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    body = {"prompt": prompt, "images": [f"data:image/png;base64,{base64.b64encode(png).decode()}" for png in images], **params}
+    submit = _post(f"{base_url}/bytedance/seedream-v5.5/edit", api_key, "Wavespeed", timeout, headers=headers, json=body)
+    return _wavespeed_poll(base_url, api_key, headers, submit, timeout)
+
+
+def _wavespeed_poll(base_url, api_key, headers, submit, timeout):
     prediction_id = submit.get("data", {}).get("id")
     if not prediction_id:
         raise RuntimeError(f"Wavespeed submit did not return a prediction id: {submit}")

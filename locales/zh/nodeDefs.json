@@ -188,5 +188,20 @@
       “timeout_sec”: { “name”: “超时（秒）” }
     },
     “outputs”: { “0”: { “name”: “图像” } }
+  },
+  “LLMAIDrawSeadream55Edit”: {
+    “display_name”: “LLMAIDraw · Seedream 5.5 Edit”,
+    “description”: “通过 Wavespeed 使用字节跳动 Seedream 5.5 编辑图片，最多支持 10 张参考图。”,
+    “inputs”: {
+      “profile”: { “name”: “配置”, “tooltip”: “配置来自 config.json 的 seedream 部分。” },
+      “prompt”: { “name”: “提示词” },
+      “aspect_ratio”: { “name”: “宽高比”, “tooltip”: “auto 表示从输入图像自动确定宽高比。” },
+      “resolution”: { “name”: “分辨率” },
+      “background”: { “name”: “背景” },
+      “output_format”: { “name”: “输出格式” },
+      “timeout_sec”: { “name”: “超时（秒）” },
+      “image”: { “name”: “参考图”, “tooltip”: “批次中的每张图都会作为参考图发送，连接更多参考图时会自动增加输入插槽。” }
+    },
+    “outputs”: { “0”: { “name”: “图像” } }
   }
 }
