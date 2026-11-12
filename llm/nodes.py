@@ -144,37 +144,11 @@ class LLMAIDrawSeadream55:
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {
-            "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the seedream section of config.json."}),
-            "prompt": _prompt(),
-            "aspect_ratio": (SEEDREAM_ASPECT_RATIOS, {"default": "1:1"}),
-            "resolution": (["1k", "1.5k", "2k"], {"default": "1k"}),
-            "background": (["auto", "transparent", "opaque"], {"default": "auto"}),
-            "output_format": (["png", "jpeg"], {"default": "png"}),
-            "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
-        }}
-
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "generate"
-    CATEGORY = CATEGORY
-
-    def generate(self, profile, prompt, aspect_ratio, resolution, background, output_format, timeout_sec):
-        base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
-        params = {"aspect_ratio": aspect_ratio, "resolution": resolution, "background": background, "output_format": output_format}
-        results = wavespeed_generate(base_url, api_key, prompt, params, timeout_sec)
-        return (images_to_batch(results, background == "transparent"),)
-
-
-class LLMAIDrawSeadream55Edit:
-    CONFIG_SECTION = "seedream"
-
-    @classmethod
-    def INPUT_TYPES(cls):
         return {
             "required": {
                 "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the seedream section of config.json."}),
                 "prompt": _prompt(),
-                "aspect_ratio": (["auto"] + SEEDREAM_ASPECT_RATIOS, {"default": "auto", "tooltip": "auto derives the aspect ratio from the input image."}),
+                "aspect_ratio": (["auto"] + SEEDREAM_ASPECT_RATIOS, {"default": "auto", "tooltip": "auto uses 1:1 for text-to-image, or derives the ratio from the reference image when one is connected."}),
                 "resolution": (["1k", "1.5k", "2k"], {"default": "1k"}),
                 "background": (["auto", "transparent", "opaque"], {"default": "auto"}),
                 "output_format": (["png", "jpeg"], {"default": "png"}),
@@ -192,8 +166,11 @@ class LLMAIDrawSeadream55Edit:
         params = {"resolution": resolution, "background": background, "output_format": output_format}
         if aspect_ratio != "auto":
             params["aspect_ratio"] = aspect_ratio
-        reference_images = _references(image, extra_images)
-        results = wavespeed_edit(base_url, api_key, prompt, reference_images, params, timeout_sec)
+        references = _references(image, extra_images)
+        if references:
+            results = wavespeed_edit(base_url, api_key, prompt, references, params, timeout_sec)
+        else:
+            results = wavespeed_generate(base_url, api_key, prompt, params, timeout_sec)
         return (images_to_batch(results, background == "transparent"),)
 
 
@@ -202,7 +179,6 @@ NODE_CLASS_MAPPINGS = {
     "LLMAIDrawNanoBanana2": LLMAIDrawNanoBanana2,
     "LLMAIDrawGrokImage": LLMAIDrawGrokImage,
     "LLMAIDrawSeadream55": LLMAIDrawSeadream55,
-    "LLMAIDrawSeadream55Edit": LLMAIDrawSeadream55Edit,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -210,5 +186,4 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "LLMAIDrawNanoBanana2": "LLMAIDraw · Nano Banana 2",
     "LLMAIDrawGrokImage": "LLMAIDraw · Grok Image",
     "LLMAIDrawSeadream55": "LLMAIDraw · Seedream 5.5",
-    "LLMAIDrawSeadream55Edit": "LLMAIDraw · Seedream 5.5 Edit",
 }
