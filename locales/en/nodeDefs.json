@@ -192,5 +192,19 @@
       "timeout_sec": { "name": "Timeout (s)" }
     },
     "outputs": { "0": { "name": "Image" } }
+  },
+  "LLMAIDrawSeadream55": {
+    "display_name": "LLMAIDraw · Seedream 5.5",
+    "description": "Generate images with ByteDance Seedream 5.5 via Wavespeed.",
+    "inputs": {
+      "profile": { "name": "Profile", "tooltip": "Profiles come from the seedream section of config.json." },
+      "prompt": { "name": "Prompt" },
+      "aspect_ratio": { "name": "Aspect ratio" },
+      "resolution": { "name": "Resolution" },
+      "background": { "name": "Background" },
+      "output_format": { "name": "Output format" },
+      "timeout_sec": { "name": "Timeout (s)" }
+    },
+    "outputs": { "0": { "name": "Image" } }
   }
 }

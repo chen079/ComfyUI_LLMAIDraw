@@ -1,6 +1,6 @@
 from . import chatgpt_account
 from ..config import get_profile, model_names, profile_names
-from .image_apis import gemini_generate, gemini_list_models, openai_generate, openai_list_models, xai_generate
+from .image_apis import gemini_generate, gemini_list_models, openai_generate, openai_list_models, wavespeed_generate, xai_generate
 from ..image_codec import edit_mask_to_png, image_to_png, images_to_batch
 
 
@@ -136,14 +136,45 @@ class LLMAIDrawGrokImage:
         return (images_to_batch(xai_generate(base_url, api_key, prompt, params, timeout_sec)),)
 
 
+SEEDREAM_ASPECT_RATIOS = ["1:1", "1:2", "2:1", "1:3", "3:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "9:21", "21:9"]
+
+
+class LLMAIDrawSeadream55:
+    CONFIG_SECTION = "seedream"
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {
+            "profile": (profile_names(cls.CONFIG_SECTION), {"tooltip": "Profiles come from the seedream section of config.json."}),
+            "prompt": _prompt(),
+            "aspect_ratio": (SEEDREAM_ASPECT_RATIOS, {"default": "1:1"}),
+            "resolution": (["1k", "1.5k", "2k"], {"default": "1k"}),
+            "background": (["auto", "transparent", "opaque"], {"default": "auto"}),
+            "output_format": (["png", "jpeg"], {"default": "png"}),
+            "timeout_sec": ("INT", {"default": 300, "min": 30, "max": 3000, "step": 1}),
+        }}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate"
+    CATEGORY = CATEGORY
+
+    def generate(self, profile, prompt, aspect_ratio, resolution, background, output_format, timeout_sec):
+        base_url, api_key = get_profile(self.CONFIG_SECTION, profile)
+        params = {"aspect_ratio": aspect_ratio, "resolution": resolution, "background": background, "output_format": output_format}
+        results = wavespeed_generate(base_url, api_key, prompt, params, timeout_sec)
+        return (images_to_batch(results, background == "transparent"),)
+
+
 NODE_CLASS_MAPPINGS = {
     "LLMAIDrawGPTImage": LLMAIDrawGPTImage,
     "LLMAIDrawNanoBanana2": LLMAIDrawNanoBanana2,
     "LLMAIDrawGrokImage": LLMAIDrawGrokImage,
+    "LLMAIDrawSeadream55": LLMAIDrawSeadream55,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "LLMAIDrawGPTImage": "LLMAIDraw · GPT Image",
     "LLMAIDrawNanoBanana2": "LLMAIDraw · Nano Banana 2",
     "LLMAIDrawGrokImage": "LLMAIDraw · Grok Image",
+    "LLMAIDrawSeadream55": "LLMAIDraw · Seedream 5.5",
 }

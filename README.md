@@ -6,6 +6,7 @@
 - **GPT Image**：OpenAI 图像生成与编辑，支持 API Key 或 ChatGPT 账号登录。
 - **Nano Banana 2**：Google Gemini 图像生成与参考图编辑。
 - **Grok Image**：xAI 图像生成。
+- **Seedream 5.5**：ByteDance Seedream 5.5 文生图，通过 Wavespeed API 调用，支持透明背景输出、宽高比选择和 1K/1.5K/2K 分辨率档位。
 
 ## 安装
 
@@ -43,11 +44,14 @@ notepad config.json
   "grok_image": {
     "official": { "base_url": "https://api.x.ai/v1", "api_key": "xai-..." }
   },
+  "seedream": {
+    "official": { "base_url": "https://api.wavespeed.ai/api/v3", "api_key": "your-wavespeed-key" }
+  },
   "chatgpt_account": { "model": "gpt-6.1-sol" }
 }
 ```
 
-- `gpt_image`、`nano_banana`、`grok_image` 下的每个键都是一个配置，可以同时写官方地址和任意多个自定义地址；节点的 `profile` 下拉框按名称选择。自定义地址需要兼容对应服务的官方接口格式（OpenAI Images、Gemini `generateContent`、xAI Images）。
+- `gpt_image`、`nano_banana`、`grok_image`、`seedream` 下的每个键都是一个配置，可以同时写官方地址和任意多个自定义地址；节点的 `profile` 下拉框按名称选择。自定义地址需要兼容对应服务的官方接口格式（OpenAI Images、Gemini `generateContent`、xAI Images、Wavespeed v3）。
 - 修改 `config.json` 中的 `base_url` / `api_key` 后立即生效；新增或删除配置名称后需要刷新页面或重启 ComfyUI，下拉框才会更新。
 - `config.json` 已在 `.gitignore` 中，不会被提交。
 
@@ -67,11 +71,12 @@ notepad config.json
 - `LLMAIDraw · Nano Banana 2`：`model`（默认 `gemini-3.1-flash-image`）、`aspect_ratio`、`image_size`（1K/2K/4K）、`temperature`，可选参考图 `image`。
 - GPT Image 与 Nano Banana 2 支持多参考图：每连接一个参考图会自动增加一个空的参考图输入，所有输入按顺序发送。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
-- 三个节点都有可选的 `custom_model` 文本框：填写后代替 `model` 下拉框使用，可直接输入下拉框中没有的模型名；留空时使用 `model`。
+- `LLMAIDraw · Seedream 5.5`：`aspect_ratio`、`resolution`（1k/1.5k/2k，1k 与 1.5k 同价，2k 最高）、`background`（`transparent` 返回带透明通道的图像，需 png；`auto` 由模型根据提示词和输出格式决定）、`output_format`（png/jpeg）。Seedream 5.5 为文生图，不支持参考图与种子。
+- 三个节点都有可选的 `custom_model` 文本框：填写后代替 `model` 下拉框使用，可直接输入下拉框中没有的模型名；留空时使用 `model`。Seedream 5.5 节点没有 `model` 和 `custom_model`，模型固定为 `bytedance/seedream-v5.5`。
 
 ## 获取模型列表
 
-三个 LLMAIDraw 节点都有 **获取模型列表 / Refresh models** 按钮：先选好 `profile`，点击后会请求该配置的 `/models` 接口，把模型写入 `config.json` 中该配置的 `models` 字段，并刷新 `model` 下拉框。列表包含该接口返回的全部模型，请自行选择图像模型。下拉框中没有的模型可以填写在 `custom_model` 中，不为空时代替 `model` 使用。
+三个 LLMAIDraw 节点（GPT Image、Nano Banana 2、Grok Image）都有 **获取模型列表 / Refresh models** 按钮：先选好 `profile`，点击后会请求该配置的 `/models` 接口，把模型写入 `config.json` 中该配置的 `models` 字段，并刷新 `model` 下拉框。列表包含该接口返回的全部模型，请自行选择图像模型。下拉框中没有的模型可以填写在 `custom_model` 中，不为空时代替 `model` 使用。
 
 不支持 `/models` 的中转站可以手动填写列表：
 
@@ -83,7 +88,7 @@ notepad config.json
 
 `chatgpt_account` 不使用 `model` 下拉框，也没有模型列表：图像模型由 ChatGPT 服务端选择，无法指定；`config.json` 中的 `chatgpt_account.model`（默认 `gpt-6.1-sol`）只是调用绘图工具的对话模型。
 
-GPT Image、Nano Banana 2 和 Grok Image 的接口不支持种子，因此节点没有 `seed`；输入完全相同时 ComfyUI 会复用缓存结果，修改提示词等输入即可重新生成。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
+GPT Image、Nano Banana 2、Grok Image 和 Seedream 5.5 的接口不支持种子，因此节点没有 `seed`；输入完全相同时 ComfyUI 会复用缓存结果，修改提示词等输入即可重新生成。所有节点只输出 `IMAGE`，需要保存时连接 `SaveImage`。
 
 界面提供英文和简体中文翻译，跟随 ComfyUI 的语言设置自动切换。节点 ID、端口类型和下拉选项值不会随界面语言改变，因此切换语言不会影响工作流。
 

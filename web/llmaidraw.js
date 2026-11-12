@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
-const NODE_TYPES = ["LLMAIDrawGPTImage", "LLMAIDrawNanoBanana2", "LLMAIDrawGrokImage"];
+const NODE_TYPES = ["LLMAIDrawGPTImage", "LLMAIDrawNanoBanana2", "LLMAIDrawGrokImage", "LLMAIDrawSeadream55"];
 const REFERENCE_NODE_TYPES = ["LLMAIDrawGPTImage", "LLMAIDrawNanoBanana2"];
 const EXTRA_REFERENCE = /^image_\d+$/;
 

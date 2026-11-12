@@ -1,4 +1,5 @@
 import base64
+import time
 
 import requests
 
@@ -68,3 +69,33 @@ def xai_generate(base_url, api_key, prompt, params, timeout):
     body = {"prompt": prompt, **params, "response_format": "b64_json"}
     data = _post(f"{base_url}/images/generations", api_key, "xAI", timeout, headers={"Authorization": f"Bearer {api_key}"}, json=body)
     return _decode_b64_items(data, "xAI")
+
+
+def wavespeed_generate(base_url, api_key, prompt, params, timeout):
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    body = {"prompt": prompt, **params}
+    submit = _post(f"{base_url}/bytedance/seedream-v5.5", api_key, "Wavespeed", timeout, headers=headers, json=body)
+    prediction_id = submit.get("data", {}).get("id")
+    if not prediction_id:
+        raise RuntimeError(f"Wavespeed submit did not return a prediction id: {submit}")
+    result_url = f"{base_url}/predictions/{prediction_id}/result"
+    deadline = time.monotonic() + timeout
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("Wavespeed prediction timed out.")
+        data = _get(result_url, api_key, "Wavespeed", remaining, headers=headers)
+        status = data.get("data", {}).get("status")
+        if status == "completed":
+            outputs = data.get("data", {}).get("outputs", [])
+            if not outputs:
+                raise RuntimeError("Wavespeed response did not contain any outputs.")
+            images = []
+            for url in outputs:
+                r = requests.get(url, timeout=60)
+                r.raise_for_status()
+                images.append(r.content)
+            return images
+        if status in ("failed", "cancelled", "timeout", "deleted"):
+            raise RuntimeError(f"Wavespeed prediction {status}: {data.get('data', {})}")
+        time.sleep(2)
