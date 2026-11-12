@@ -159,35 +159,35 @@
     },
     "outputs": { "0": { "name": "图像" } }
   },
-  “LLMAIDrawGrokImage”: {
-    “display_name”: “LLMAIDraw · Grok Image”,
-    “description”: “使用 xAI Grok 生成图片。”,
-    “inputs”: {
-      “profile”: { “name”: “配置”, “tooltip”: “配置来自 config.json 的 grok_image 部分。” },
-      “prompt”: { “name”: “提示词” },
-      “model”: { “name”: “模型”, “tooltip”: “点击”获取模型列表”按钮可载入所选配置的模型。” },
-      “custom_model”: { “name”: “自定义模型”, “tooltip”: “不为空时使用此模型名，代替”模型”下拉框。” },
-      “aspect_ratio”: { “name”: “宽高比”, “tooltip”: “auto 表示使用服务端默认宽高比。” },
-      “resolution”: { “name”: “分辨率” },
-      “quality”: { “name”: “质量”, “tooltip”: “grok-imagine-image-2.0 支持。” },
-      “n”: { “name”: “图片数量” },
-      “timeout_sec”: { “name”: “超时（秒）” }
+  "LLMAIDrawGrokImage": {
+    "display_name": "LLMAIDraw · Grok Image",
+    "description": "使用 xAI Grok 生成图片。",
+    "inputs": {
+      "profile": { "name": "配置", "tooltip": "配置来自 config.json 的 grok_image 部分。" },
+      "prompt": { "name": "提示词" },
+      "model": { "name": "模型", "tooltip": "点击“获取模型列表”按钮可载入所选配置的模型。" },
+      "custom_model": { "name": "自定义模型", "tooltip": "不为空时使用此模型名，代替“模型”下拉框。" },
+      "aspect_ratio": { "name": "宽高比", "tooltip": "auto 表示使用服务端默认宽高比。" },
+      "resolution": { "name": "分辨率" },
+      "quality": { "name": "质量", "tooltip": "grok-imagine-image-2.0 支持。" },
+      "n": { "name": "图片数量" },
+      "timeout_sec": { "name": "超时（秒）" }
     },
-    “outputs”: { “0”: { “name”: “图像” } }
+    "outputs": { "0": { "name": "图像" } }
   },
-  “LLMAIDrawSeadream55”: {
-    “display_name”: “LLMAIDraw · Seedream 5.5”,
-    “description”: “通过 Wavespeed 使用字节跳动 Seedream 5.5 生成或编辑图片。连接参考图后自动切换为编辑模式（最多 10 张）。”,
-    “inputs”: {
-      “profile”: { “name”: “配置”, “tooltip”: “配置来自 config.json 的 seedream 部分。” },
-      “prompt”: { “name”: “提示词” },
-      “aspect_ratio”: { “name”: “宽高比”, “tooltip”: “auto：文生图时默认 1:1，连接参考图时从参考图自动推断宽高比。” },
-      “resolution”: { “name”: “分辨率” },
-      “background”: { “name”: “背景” },
-      “output_format”: { “name”: “输出格式” },
-      “timeout_sec”: { “name”: “超时（秒）” },
-      “image”: { “name”: “参考图”, “tooltip”: “连接参考图后切换为编辑模式，批次中的每张图都会发送，连接更多参考图时会自动增加输入插槽。” }
+  "LLMAIDrawSeadream55": {
+    "display_name": "LLMAIDraw · Seedream 5.5",
+    "description": "通过 Wavespeed 使用字节跳动 Seedream 5.5 生成或编辑图片。连接参考图后自动切换为编辑模式（最多 10 张）。",
+    "inputs": {
+      "profile": { "name": "配置", "tooltip": "配置来自 config.json 的 seedream 部分。" },
+      "prompt": { "name": "提示词" },
+      "aspect_ratio": { "name": "宽高比", "tooltip": "auto：文生图时默认 1:1，连接参考图时从参考图自动推断宽高比。" },
+      "resolution": { "name": "分辨率" },
+      "background": { "name": "背景" },
+      "output_format": { "name": "输出格式" },
+      "timeout_sec": { "name": "超时（秒）" },
+      "image": { "name": "参考图", "tooltip": "连接参考图后切换为编辑模式，批次中的每张图都会发送，连接更多参考图时会自动增加输入插槽。" }
     },
-    “outputs”: { “0”: { “name”: “图像” } }
+    "outputs": { "0": { "name": "图像" } }
   }
 }
