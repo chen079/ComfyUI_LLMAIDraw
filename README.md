@@ -7,6 +7,7 @@
 - **Nano Banana 2**：Google Gemini 图像生成与参考图编辑。
 - **Grok Image**：xAI 图像生成。
 - **Seedream 5.5**：ByteDance Seedream 5.5 文生图，通过 Wavespeed API 调用，支持透明背景输出、宽高比选择和 1K/1.5K/2K 分辨率档位。
+- **Seedream 5.5 Edit**：Seedream 5.5 图像编辑，支持最多 10 张参考图、多轮一致编辑。
 
 ## 安装
 
@@ -72,6 +73,7 @@ notepad config.json
 - GPT Image 与 Nano Banana 2 支持多参考图：每连接一个参考图会自动增加一个空的参考图输入，所有输入按顺序发送。
 - `LLMAIDraw · Grok Image`：`model`（默认 `grok-imagine-image-2.0`）、`aspect_ratio`、`resolution`（1k/2k）、`quality`、`n`。
 - `LLMAIDraw · Seedream 5.5`：`aspect_ratio`、`resolution`（1k/1.5k/2k，1k 与 1.5k 同价，2k 最高）、`background`（`transparent` 返回带透明通道的图像，需 png；`auto` 由模型根据提示词和输出格式决定）、`output_format`（png/jpeg）。Seedream 5.5 为文生图，不支持参考图与种子。
+- `LLMAIDraw · Seedream 5.5 Edit`：同上参数，另加可选 `image` 参考图输入（最多 10 张，连接参考图后自动增加输入插槽）；`aspect_ratio` 额外支持 `auto`，由模型从输入图像自动推断宽高比。
 - 三个节点都有可选的 `custom_model` 文本框：填写后代替 `model` 下拉框使用，可直接输入下拉框中没有的模型名；留空时使用 `model`。Seedream 5.5 节点没有 `model` 和 `custom_model`，模型固定为 `bytedance/seedream-v5.5`。
 
 ## 获取模型列表
